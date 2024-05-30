@@ -17,7 +17,7 @@ let appointments = [];
 
 // Endpoint para obter horários disponíveis
 app.get('/available-times', async (req, res) => {
-  console.log(date);
+  
   try {
     const records = await base('AvailableTimes').select().firstPage();
     const times = records.map(record => record.get('Time'));
@@ -56,6 +56,7 @@ app.post('/appointments', async (req, res) => {
 
 // Endpoint para obter agendamentos para uma data específica
 app.get('/appointments', (req, res) => {
+  console.log(date);
   const date = req.query.date;
   const filteredAppointments = appointments.filter(app => app.data === date);
   res.json(filteredAppointments);
