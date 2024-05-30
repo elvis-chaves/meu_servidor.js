@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); // Carrega variáveis de ambiente do arquivo .env
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 
 let appointments = [];
 
+// Endpoint para obter horários disponíveis
 app.get('/available-times', async (req, res) => {
   try {
     const records = await base('AvailableTimes').select().firstPage();
@@ -28,6 +29,7 @@ app.get('/available-times', async (req, res) => {
   }
 });
 
+// Endpoint para criar um novo agendamento
 app.post('/appointments', async (req, res) => {
   const { nome, modalidade, data, horario } = req.body;
   const newAppointment = { nome, modalidade, data, horario };
@@ -51,18 +53,21 @@ app.post('/appointments', async (req, res) => {
   }
 });
 
+// Endpoint para obter agendamentos para uma data específica
 app.get('/appointments', (req, res) => {
   const date = req.query.date;
   const filteredAppointments = appointments.filter(app => app.data === date);
   res.json(filteredAppointments);
 });
 
+// Endpoint para cancelar um agendamento
 app.delete('/appointments/:id', (req, res) => {
   const id = req.params.id;
   appointments = appointments.filter((app, index) => index !== parseInt(id));
   res.status(200).json({ message: 'Agendamento cancelado' });
 });
 
+// Inicia o servidor
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
