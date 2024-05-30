@@ -6,70 +6,86 @@ const Airtable = require('airtable');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const variavelTeste = process.env.TESTE;
-// Configurar Airtable
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
 app.use(cors());
 app.use(bodyParser.json());
 
+// Configuração do Airtable
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
+const table = process.env.AIRTABLE_TABLE_NAME_APPOINTMENTS;
+
 let appointments = [];
+
+// Função para carregar agendamentos do Airtable
+const loadAppointments = async () => {
+  const records = await base(table).select().all();
+  appointments = records.map(record => ({
+    id: record.id,
+    ...record.fields
+  }));
+};
+
+// Inicialmente carrega os agendamentos ao iniciar o servidor
+loadAppointments();
 
 // Endpoint para obter horários disponíveis
 app.get('/available-times', async (req, res) => {
-  try {
-    const records = await base('AvailableTimes').select().firstPage();
-    const times = records.map(record => record.get('Time'));
-    const bookedTimes = appointments.map(app => app.horario);
-    const availableTimes = times.filter(time => !bookedTimes.includes(time));
-    res.json(availableTimes);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Erro ao obter horários disponíveis',variavelTeste);
+  const { date } = req.query;
+  const times = [];
+  for (let hour = 8; hour < 19; hour++) {
+    for (let minute = 0; minute < 60; minute += 20) {
+      times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    }
   }
+  const appointmentsForDate = appointments.filter(app => app.data === date).map(app => app.horario);
+  const availableTimes = times.filter(time => !appointmentsForDate.includes(time));
+  res.json(availableTimes);
 });
 
 // Endpoint para criar um novo agendamento
 app.post('/appointments', async (req, res) => {
   const { nome, modalidade, data, horario } = req.body;
-  const newAppointment = { nome, modalidade, data, horario };
-  appointments.push(newAppointment);
+  const newAppointment = {
+    nome,
+    modalidade,
+    data,
+    horario,
+  };
   try {
-    const createdRecord = await base('Appointments').create([
-      {
-        fields: {
-          Nome: nome,
-          Modalidade: modalidade,
-          Data: data,
-          Horario: horario
-        }
-      }
-    ]);
-    console.log('Novo agendamento:', newAppointment);
-    res.status(200).json(newAppointment);
+    const createdRecord = await base(table).create(newAppointment);
+    appointments.push({
+      id: createdRecord.id,
+      ...createdRecord.fields,
+    });
+    res.status(200).json(createdRecord);
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao criar agendamento');
   }
 });
 
-// Endpoint para obter agendamentos para uma data específica
-app.get('/appointments', (req, res) => {
-  const date = req.query.date;
-  const filteredAppointments = appointments.filter(app => app.data === date);
-  res.json(filteredAppointments);
+// Endpoint para obter agendamentos de uma data específica
+app.get('/appointments', async (req, res) => {
+  const { date } = req.query;
+  const appointmentsForDate = appointments.filter(app => app.data === date);
+  res.json(appointmentsForDate);
 });
 
 // Endpoint para cancelar um agendamento
-app.delete('/appointments/:id', (req, res) => {
-  const id = req.params.id;
-  appointments = appointments.filter((app, index) => index !== parseInt(id));
-  res.status(200).json({ message: 'Agendamento cancelado' });
+app.delete('/appointments/:id', async (req, res) => {
+  const { id } = req.params;
+  appointments = appointments.filter(app => app.id !== id);
+  try {
+    await base(table).destroy([id]);
+    res.status(200).send('Agendamento cancelado');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Erro ao cancelar agendamento');
+  }
 });
 
-// Inicia o servidor
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Servidor rodando na porta ${port}`);
 });
 /*const express = require('express');
 const axios = require('axios');
