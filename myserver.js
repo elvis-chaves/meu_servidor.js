@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const Airtable = require('airtable');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
+//const port = process.env.PORT || 3000;
+const variavelTeste = process.env.Teste;
 // Configurar Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
@@ -25,7 +25,7 @@ app.get('/available-times', async (req, res) => {
     res.json(availableTimes);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Erro ao obter horários disponíveis');
+    res.status(500).send('Erro ao obter horários disponíveis',variavelTeste);
   }
 });
 
