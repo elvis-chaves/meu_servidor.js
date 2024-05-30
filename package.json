@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "myserver.js",
   "scripts": {
-    "start": "node myserver.js"  },
+    "start": "node myserver.js"},
   "keywords": [],
   "author": "",
   "license": "ISC",
