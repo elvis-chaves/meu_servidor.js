@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const Airtable = require('airtable');
 
 const app = express();
-//const port = process.env.PORT || 3000;
-const variavelTeste = process.env.Teste;
+const port = process.env.PORT || 3000;
+const variavelTeste = process.env.TESTE;
 // Configurar Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
