@@ -17,6 +17,7 @@ let appointments = [];
 
 // Endpoint para obter horários disponíveis
 app.get('/available-times', async (req, res) => {
+  console.log(date);
   try {
     const records = await base('AvailableTimes').select().firstPage();
     const times = records.map(record => record.get('Time'));
