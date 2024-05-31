@@ -1,8 +1,8 @@
-require('dotenv').config(); // Carrega variáveis de ambiente do arquivo .env
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Airtable = require('airtable');
+require('dotenv').config(); // Carrega variáveis de ambiente do arquivo .env
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -67,7 +67,6 @@ app.post('/appointments', async (req, res) => {
 // Endpoint para obter agendamentos de uma data específica
 app.get('/appointments', async (req, res) => {
   const { date } = req.query;
-  console.log(date);
   const appointmentsForDate = appointments.filter(app => app.data === date);
   res.json(appointmentsForDate);
 });
@@ -88,6 +87,7 @@ app.delete('/appointments/:id', async (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
+
 /*const express = require('express');
 const axios = require('axios');
 const app = express();
