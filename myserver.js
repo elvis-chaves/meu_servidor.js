@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Airtable = require('airtable');
+const favicon = require('serve-favicon');
+const path = require('path');
 require('dotenv').config(); // Carrega variáveis de ambiente do arquivo .env
 
 const app = express();
@@ -9,6 +11,9 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// Adicione esta linha para servir o favicon
+app.use(favicon(path.join(__dirname, 'favicon.ico')));
 
 // Configuração do Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
@@ -18,11 +23,15 @@ let appointments = [];
 
 // Função para carregar agendamentos do Airtable
 const loadAppointments = async () => {
-  const records = await base(table).select().all();
-  appointments = records.map(record => ({
-    id: record.id,
-    ...record.fields
-  }));
+  try {
+    const records = await base(table).select().all();
+    appointments = records.map(record => ({
+      id: record.id,
+      ...record.fields
+    }));
+  } catch (error) {
+    console.error('Erro ao carregar agendamentos:', error);
+  }
 };
 
 // Inicialmente carrega os agendamentos ao iniciar o servidor
@@ -59,17 +68,16 @@ app.post('/appointments', async (req, res) => {
     });
     res.status(200).json(createdRecord);
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao criar agendamento:', error);
     res.status(500).send('Erro ao criar agendamento');
   }
 });
 
 // Endpoint para obter agendamentos de uma data específica
 app.get('/appointments', async (req, res) => {
-  const {date} = req.query;
+  const { date } = req.query;
   const appointmentsForDate = appointments.filter(app => app.data === date);
   res.json(appointmentsForDate);
-  console.log(appointmentsForDate);
 });
 
 // Endpoint para cancelar um agendamento
@@ -80,7 +88,7 @@ app.delete('/appointments/:id', async (req, res) => {
     await base(table).destroy([id]);
     res.status(200).send('Agendamento cancelado');
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao cancelar agendamento:', error);
     res.status(500).send('Erro ao cancelar agendamento');
   }
 });
