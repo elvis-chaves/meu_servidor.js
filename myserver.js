@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Airtable = require('airtable');
-const favicon = require('serve-favicon');
+//const favicon = require('serve-favicon');
 const path = require('path');
 require('dotenv').config(); // Carrega variáveis de ambiente do arquivo .env
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Adicione esta linha para servir o favicon
-app.use(favicon(path.join(__dirname, 'favicon.ico')));
+//app.use(favicon(path.join(__dirname, 'favicon.ico')));
 
 // Configuração do Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
