@@ -66,9 +66,10 @@ app.post('/appointments', async (req, res) => {
 
 // Endpoint para obter agendamentos de uma data específica
 app.get('/appointments', async (req, res) => {
-  const { date } = req.query;
+  const {date} = req.query;
   const appointmentsForDate = appointments.filter(app => app.data === date);
   res.json(appointmentsForDate);
+  console.log(appointmentsForDate);
 });
 
 // Endpoint para cancelar um agendamento
