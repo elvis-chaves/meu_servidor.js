@@ -76,9 +76,28 @@ app.post('/appointments', async (req, res) => {
 // Endpoint para obter agendamentos de uma data específica
 app.get('/appointments', async (req, res) => {
   const { date } = req.query;
-  const appointmentsForDate = appointments.filter(app => app.data === date);
-  res.json(appointmentsForDate);
+
+  if (!date) {
+    return res.status(400).json({ error: 'A data é obrigatória' });
+  }
+
+  try {
+    const records = await base(table).select({
+      filterByFormula: `data = '${date}'`
+    }).all();
+
+    const appointmentsForDate = records.map(record => ({
+      id: record.id,
+      ...record.fields,
+    }));
+
+    res.json(appointmentsForDate);
+  } catch (error) {
+    console.error('Erro ao obter agendamentos:', error);
+    res.status(500).json({ error: 'Erro ao obter agendamentos' });
+  }
 });
+
 
 // Endpoint para cancelar um agendamento
 app.delete('/appointments/:id', async (req, res) => {
