@@ -40,16 +40,33 @@ loadAppointments();
 // Endpoint para obter horários disponíveis
 app.get('/available-times', async (req, res) => {
   const { date } = req.query;
-  const times = [];
-  for (let hour = 8; hour < 19; hour++) {
-    for (let minute = 0; minute < 60; minute += 20) {
-      times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
-    }
+
+  if (!date) {
+    return res.status(400).json({ error: 'A data é obrigatória' });
   }
-  const appointmentsForDate = appointments.filter(app => app.data === date).map(app => app.horario);
-  const availableTimes = times.filter(time => !appointmentsForDate.includes(time));
-  res.json(availableTimes);
+
+  try {
+    const times = [];
+    for (let hour = 8; hour < 19; hour++) {
+      for (let minute = 0; minute < 60; minute += 20) {
+        times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+      }
+    }
+
+    const records = await base(table).select({
+      filterByFormula: `data = '${date}'`
+    }).all();
+
+    const appointmentsForDate = records.map(record => record.fields.horario);
+    const availableTimes = times.filter(time => !appointmentsForDate.includes(time));
+
+    res.json(availableTimes);
+  } catch (error) {
+    console.error('Erro ao obter horários disponíveis:', error);
+    res.status(500).json({ error: 'Erro ao obter horários disponíveis' });
+  }
 });
+
 
 // Endpoint para criar um novo agendamento
 app.post('/appointments', async (req, res) => {
