@@ -37,7 +37,7 @@ app.get('/available-times', async (req, res) => {
   try {
     const { date } = req.query;
     const times = generateAvailableTimes();
-    const response = await axios.get(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME_APPOINTMENTS}?filterByFormula=DATETIME_FORMAT({Data}, "YYYY-MM-DD") = "${date}"`, {
+    const response = await axios.get(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME_APPOINTMENTS}?filterByFormula=DATETIME_FORMAT({Data}, "yyyy-MM-dd") = "${date}"`, {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
     });
 
