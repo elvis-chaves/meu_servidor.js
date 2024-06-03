@@ -10,7 +10,9 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_NAME_APPOINTMENTS = process.env.AIRTABLE_TABLE_NAME_APPOINTMENTS;
 
-app.use(cors());
+app.use(cors({
+  origin: '*', // Permitir todas as origens durante o desenvolvimento
+}));
 app.use(express.json());
 
 app.get('/available-times', (req, res) => {
