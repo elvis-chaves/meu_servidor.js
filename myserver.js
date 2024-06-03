@@ -8,6 +8,12 @@ const cors = require('cors');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();
 });*/
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,PATCH,POST,DELETE");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,Authorization");
+  next();
+});
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
@@ -17,9 +23,9 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_NAME_APPOINTMENTS = process.env.AIRTABLE_TABLE_NAME_APPOINTMENTS;
 
 
-//app.use(cors({
-//  origin: '*', // Permitir todas as origens durante o desenvolvimento
-//}));
+app.use(cors({
+  origin: '*', // Permitir todas as origens durante o desenvolvimento
+}));
 app.use(express.json());
 
 app.get('/available-times', (req, res) => {
